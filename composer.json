@@ -1,0 +1,14 @@
+{
+  "name": "atitus/bookshelf-api",
+  "description": "API RESTful de gerenciamento de livros usando Slim Framework",
+  "require": {
+    "slim/slim": "^4.11",
+    "slim/psr7": "^1.6",
+    "vlucas/phpdotenv": "^5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Bookshelf\\": "src/"
+    }
+  }
+}

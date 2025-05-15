@@ -1,0 +1,35 @@
+# Composer dependencies
+/vendor/
+
+# Variáveis de ambiente
+.env
+
+# Logs
+*.log
+
+# Arquivos de banco de dados e dumps
+*.sqlite
+*.db
+*.sql
+*.sql.gz
+dump.rdb
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Configurações de IDEs
+.idea/
+.vscode/
+
+# Cache e arquivos temporários
+.cache/
+tmp/
+temp/
+*.tmp
+
+# Outros arquivos comuns
+*.swp
+*.bak
+*.old
