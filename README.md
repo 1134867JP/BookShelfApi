@@ -9,9 +9,12 @@
 **E-mail:** fernando.pinheiro@atitus.edu.br  
 
 ## Integrantes  
-- Alisson Silva  
-- Bruno Costa  
-- João Pedro  
+ João Pedro Rodrigues, 
+ Ricardo Basso Gunther,
+ Ricardo da Silva Groth,
+ Nycolas Musskopf Fachi, 
+ Fabricio Panisson, 
+ Jean de Cesare 
 
 ## Descrição  
 API RESTful para gerenciar um catálogo de livros. Roda em Docker, agora com extensão PDO MySQL instalada.
