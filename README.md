@@ -51,3 +51,32 @@ Exemplo de payload para criação/atualização (JSON):
   "author": "Nome do Autor",
   "published_year": 2025
 }
+```
+
+## Comandos para Build e Inicialização
+
+Limpar containers, redes e volumes antigos  
+```bash
+docker compose down --volumes
+```
+
+Build das imagens
+```bash
+docker compose build
+```
+Subir os serviços em modo destacado
+```bash
+docker compose up -d
+```
+Verificar status dos containers
+```bash 
+docker compose ps
+```
+Acompanhar logs da aplicação
+```bash
+docker compose logs -f app
+```
+Parar e remover tudo
+```bash
+docker compose down
+```
