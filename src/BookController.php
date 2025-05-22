@@ -32,6 +32,24 @@ class BookController
         return null;
     }
 
+    private function handleDbException(Response $response, \Exception $e): Response
+    {
+        $error = json_decode($e->getMessage(), true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($error)) {
+            $payload = [
+                "status" => $error['status'] ?? "error",
+                "message" => $error['message'] ?? "Erro desconhecido ao acessar o banco de dados",
+                "hint" => "Verifique as credenciais e a conexão com o banco de dados."
+            ];
+        } else {
+            $payload = [
+                "status" => "error",
+                "message" => "Erro inesperado ao acessar o banco de dados"
+            ];
+        }
+        return $this->jsonResponse($response, $payload, 500);
+    }
+
     public function getAll(Request $request, Response $response): Response
     {
         try {
@@ -52,13 +70,8 @@ class BookController
                 ];
             }
             $status = 200;
-        } catch (PDOException $e) {
-            $payload = [
-                'status' => 'error',
-                'message' => 'Erro ao recuperar livros',
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+        } catch (\Exception $e) {
+            return $this->handleDbException($response, $e);
         }
         return $this->jsonResponse($response, $payload, $status);
     }
@@ -91,13 +104,8 @@ class BookController
                 ];
                 $status = 404;
             }
-        } catch (PDOException $e) {
-            $payload = [
-                'status' => 'error',
-                'message' => 'Erro ao recuperar livro',
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+        } catch (\Exception $e) {
+            return $this->handleDbException($response, $e);
         }
         return $this->jsonResponse($response, $payload, $status);
     }
@@ -131,13 +139,8 @@ class BookController
                 'data' => ['id' => $id]
             ];
             $status = 201;
-        } catch (PDOException $e) {
-            $payload = [
-                'status' => 'error',
-                'message' => 'Erro ao criar livro',
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+        } catch (\Exception $e) {
+            return $this->handleDbException($response, $e);
         }
         return $this->jsonResponse($response, $payload, $status);
     }
@@ -189,13 +192,8 @@ class BookController
                 ];
                 $status = 404;
             }
-        } catch (PDOException $e) {
-            $payload = [
-                'status' => 'error',
-                'message' => 'Erro ao atualizar livro',
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+        } catch (\Exception $e) {
+            return $this->handleDbException($response, $e);
         }
         return $this->jsonResponse($response, $payload, $status);
     }
@@ -226,13 +224,8 @@ class BookController
                 ];
                 $status = 404;
             }
-        } catch (PDOException $e) {
-            $payload = [
-                'status' => 'error',
-                'message' => 'Erro ao excluir livro',
-                'error' => $e->getMessage()
-            ];
-            $status = 500;
+        } catch (\Exception $e) {
+            return $this->handleDbException($response, $e);
         }
         return $this->jsonResponse($response, $payload, $status);
     }
