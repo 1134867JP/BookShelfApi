@@ -58,18 +58,19 @@ class BookController
             $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (empty($books)) {
                 $payload = [
-                    'status' => 'success',
+                    'status' => 'error',
                     'message' => 'Nenhum livro encontrado',
                     'data' => []
                 ];
+                $status = 400;
             } else {
                 $payload = [
                     'status' => 'success',
                     'message' => 'Livros recuperados com sucesso',
                     'data' => $books
                 ];
+                $status = 200;
             }
-            $status = 200;
         } catch (\Exception $e) {
             return $this->handleDbException($response, $e);
         }
