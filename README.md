@@ -53,9 +53,19 @@ Exemplo de payload para criação/atualização (JSON):
 }
 ```
 
+## Configuração de Ambiente  
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+```dotenv
+DB_HOST=
+DB_NAME=
+DB_USER=
+DB_PASS=
+MYSQL_ROOT_PASSWORD=
+```
+
 ## Comandos para Build e Inicialização
 
-Limpar containers, redes e volumes antigos  
+Limpar containers, redes e volumes antigos (Opcional)
 ```bash
 docker compose down --volumes
 ```
