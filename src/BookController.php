@@ -13,8 +13,23 @@ class BookController
 {
     private function jsonResponse(Response $response, array $payload, int $status): Response
     {
-        $response->getBody()->write(json_encode($payload));
+        $response->getBody()->write(json_encode($payload, JSON_UNESCAPED_UNICODE));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+
+    private function validateBookData(array $data): ?string
+    {
+        if (
+            empty($data['title']) ||
+            empty($data['author']) ||
+            empty($data['published_year']) ||
+            !is_string($data['title']) ||
+            !is_string($data['author']) ||
+            !is_numeric($data['published_year'])
+        ) {
+            return 'title, author e published_year são obrigatórios e devem ser válidos';
+        }
+        return null;
     }
 
     public function getAll(Request $request, Response $response): Response
@@ -23,11 +38,19 @@ class BookController
             $pdo = Database::getPDO();
             $stmt = $pdo->query('SELECT * FROM books');
             $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $payload = [
-                'status' => 'success',
-                'message' => 'Livros recuperados com sucesso',
-                'data' => $books
-            ];
+            if (empty($books)) {
+                $payload = [
+                    'status' => 'success',
+                    'message' => 'Nenhum livro encontrado',
+                    'data' => []
+                ];
+            } else {
+                $payload = [
+                    'status' => 'success',
+                    'message' => 'Livros recuperados com sucesso',
+                    'data' => $books
+                ];
+            }
             $status = 200;
         } catch (PDOException $e) {
             $payload = [
@@ -42,6 +65,13 @@ class BookController
 
     public function getOne(Request $request, Response $response, array $args): Response
     {
+        if (!isset($args['id']) || !is_numeric($args['id'])) {
+            $payload = [
+                'status' => 'error',
+                'message' => 'ID inválido'
+            ];
+            return $this->jsonResponse($response, $payload, 400);
+        }
         try {
             $pdo = Database::getPDO();
             $stmt = $pdo->prepare('SELECT * FROM books WHERE id = ?');
@@ -75,17 +105,10 @@ class BookController
     public function create(Request $request, Response $response): Response
     {
         $data = (array)$request->getParsedBody();
-        if (
-            empty($data['title']) ||
-            empty($data['author']) ||
-            empty($data['published_year']) ||
-            !is_string($data['title']) ||
-            !is_string($data['author']) ||
-            !is_numeric($data['published_year'])
-        ) {
+        if ($error = $this->validateBookData($data)) {
             $payload = [
                 'status' => 'error',
-                'message' => 'title, author e published_year são obrigatórios e devem ser válidos'
+                'message' => $error
             ];
             return $this->jsonResponse($response, $payload, 400);
         }
@@ -121,18 +144,18 @@ class BookController
 
     public function update(Request $request, Response $response, array $args): Response
     {
-        $data = (array)$request->getParsedBody();
-        if (
-            empty($data['title']) ||
-            empty($data['author']) ||
-            empty($data['published_year']) ||
-            !is_string($data['title']) ||
-            !is_string($data['author']) ||
-            !is_numeric($data['published_year'])
-        ) {
+        if (!isset($args['id']) || !is_numeric($args['id'])) {
             $payload = [
                 'status' => 'error',
-                'message' => 'title, author e published_year são obrigatórios e devem ser válidos'
+                'message' => 'ID inválido'
+            ];
+            return $this->jsonResponse($response, $payload, 400);
+        }
+        $data = (array)$request->getParsedBody();
+        if ($error = $this->validateBookData($data)) {
+            $payload = [
+                'status' => 'error',
+                'message' => $error
             ];
             return $this->jsonResponse($response, $payload, 400);
         }
@@ -149,9 +172,14 @@ class BookController
                 $args['id']
             ]);
             if ($stmt->rowCount() > 0) {
+                $stmtSelect = $pdo->prepare('SELECT * FROM books WHERE id = ?');
+                $stmtSelect->execute([$args['id']]);
+                $updatedBook = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
                 $payload = [
                     'status' => 'success',
-                    'message' => 'Atualização realizada com sucesso'
+                    'message' => 'Atualização realizada com sucesso',
+                    'data' => $updatedBook
                 ];
                 $status = 200;
             } else {
@@ -174,6 +202,13 @@ class BookController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
+        if (!isset($args['id']) || !is_numeric($args['id'])) {
+            $payload = [
+                'status' => 'error',
+                'message' => 'ID inválido'
+            ];
+            return $this->jsonResponse($response, $payload, 400);
+        }
         try {
             $pdo = Database::getPDO();
             $stmt = $pdo->prepare('DELETE FROM books WHERE id = ?');
